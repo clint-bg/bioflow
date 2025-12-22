@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -49,38 +48,36 @@ st.sidebar.markdown('Adjustable parameters.')
 # 1. WRAP INPUTS IN A FORM
 # This prevents the app from rerunning instantly when you move a slider.
 with st.sidebar.form(key='simulation_form'):
-    # Do Slider
+    # Sliders
     Do_input = st.slider('Dissolved Oxygen Setpoint (Do)', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
-    
-    # Ki Slider (New)
-    Ki_input = st.slider('Integral Gain (Ki)', min_value=80.0, max_value=140.0, value=110.0, step=15.0)
+    Ki_input = st.slider('Integral Gain (Ki, 1/hr)', min_value=80.0, max_value=140.0, value=110.0, step=15.0)
+    mua_input = st.slider('Anaerobic Rate ($\mu_a$, 1/hr)', min_value=0.0, max_value=1.0, value=0.1, step=0.05)
+    mum_input = st.slider('Growth Rate ($\mu_m$, 1/hr)', min_value=0.0, max_value=10.0, value=1.4, step=0.1)
+    Ks_input = st.slider('Half Saturation Constant (Ks)', min_value=0.1, max_value=10.0, value = 0.8, step=0.1, help='Substrate concentration when the growth rate is half the maximum')
+    b_input = st.slider('Oxygen consumption rate (b, 1/hr)', min_value=0.0, max_value=1000.0, value=100.0, step=5.0)
     
     # The Submit Button
     submit_button = st.form_submit_button(label='Simulate')
 
     #The Default Button
-    defaults_button = st.form_submit_button(label='Reset')
+    defaults_button = st.form_submit_button(label='Reset', help='Click to reset parameters to defaults')
 
 #Reset button used to reset parameter values to defualts
 if defaults_button:
-    Do_input = 0.8
-    Ki_input = 1110.0
+    st.session_state.Do_input = 0.8
+    st.session_state.Ki_input = 110.0
 
 
 # --- SIMULATION LOGIC ---
 # We only run this block if the user hits "Simulate"
 if submit_button:
     # Fixed parameter values
-    mua = 0.1 #1/hr
-    mum = 1.4 #1/hr
     C = 1 
-    Ks = 5/6 
     Xm = 1 
-    b = 100 #1/hr
     Kp = 0.2
     
     # Pack parameters with inputs from the form
-    p = [mua, mum, Ks, Xm, b, C, Kp, Ki_input, Do_input]
+    p = [mua_input, mum_input, Ks_input, Xm, b_input, C, Kp, Ki_input, Do_input]
 
     # Initial condition
     X0 = 1e7/5e9 # cells/mL
