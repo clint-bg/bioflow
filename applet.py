@@ -54,7 +54,7 @@ mum = 1.4 #1/hr
 C = 1 #change to fraction of possible dissolved oxygen 6 # mg/L
 Ks = 5/6 # change to fraction of C rather than a concentration 5 # mg/L
 Xm = 1 #5e9 # cells/mL
-b = 250 #1/hr
+b = 100 #1/hr
 Kp = 0.2
 Ki = 10 #1/hr
 
