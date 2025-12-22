@@ -56,14 +56,14 @@ Ks = 5/6 # change to fraction of C rather than a concentration 5 # mg/L
 Xm = 1 #5e9 # cells/mL
 b = 100 #1/hr
 Kp = 0.2
-Ki = 10 #1/hr
+Ki = 110 #1/hr
 
 # Pack parameters (Do comes from the slider now)
 p = [mua, mum, Ks, Xm, b, C, Kp, Ki, Do]
 
 # Initial condition
 X0 = 1e7/5e9 # cells/mL
-S0 = 0.9 # mg/L
+S0 = 0.8 # mg/L
 kla0 = 0.2 #1/hr
 y0 = [X0, S0, kla0]
 
