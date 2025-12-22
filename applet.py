@@ -52,7 +52,7 @@ with st.sidebar.form(key='simulation_form'):
     Do_input = st.slider('Dissolved Oxygen Setpoint (Do)', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
     
     # Ki Slider (New)
-    Ki_input = st.slider('Integral Gain (Ki)', min_value=80.0, max_value=140.0, value=110.0, step=15)
+    Ki_input = st.slider('Integral Gain (Ki)', min_value=80.0, max_value=140.0, value=110.0, step=15.0)
     
     # The Submit Button
     submit_button = st.form_submit_button(label='Simulate')
