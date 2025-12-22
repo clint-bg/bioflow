@@ -45,7 +45,7 @@ def derivatives(y, t, p):
 st.sidebar.title('Parameters')
 st.sidebar.markdown('Adjustable parameters.')
 
-def reset_values:
+def reset_values():
     st.session_state.Do_input = 0.8
     st.session_state.Ki_input = 110.0
     st.session_state.mua_input = 0.1
