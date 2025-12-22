@@ -45,6 +45,14 @@ def derivatives(y, t, p):
 st.sidebar.title('Parameters')
 st.sidebar.markdown('Adjustable parameters.')
 
+def reset_values:
+    st.session_state.Do_input = 0.8
+    st.session_state.Ki_input = 110.0
+    st.session_state.mua_input = 0.1
+    st.session_state.mum_input = 1.4
+    st.session_state.Ks_input = 0.8
+    st.session_state.b_input = 100.0
+
 # 1. WRAP INPUTS IN A FORM
 # This prevents the app from rerunning instantly when you move a slider.
 with st.sidebar.form(key='simulation_form'):
@@ -60,14 +68,7 @@ with st.sidebar.form(key='simulation_form'):
     submit_button = st.form_submit_button(label='Simulate')
 
     #The Default Button
-    defaults_button = st.form_submit_button(label='Reset', help='Click to reset parameters to defaults')
-
-#Reset button used to reset parameter values to defualts
-if defaults_button:
-    st.session_state.Do_input = 0.8
-    Do_input = 0.8
-    st.session_state.Ki_input = 110.0
-    Ki_input = 110.0
+    defaults_button = st.form_submit_button(label='Reset', help='Click to reset parameters to defaults',on_click=reset_values)
 
 
 # --- SIMULATION LOGIC ---
