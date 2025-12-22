@@ -45,55 +45,59 @@ def derivatives(y, t, p):
 st.sidebar.title('Parameters')
 st.sidebar.markdown('Adjustable parameters.')
 
-# Create the slider for Do
-Do = st.sidebar.slider('Dissolved Oxygen Setpoint (Do)', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
+# 1. WRAP INPUTS IN A FORM
+# This prevents the app from rerunning instantly when you move a slider.
+with st.sidebar.form(key='simulation_form'):
+    # Do Slider
+    Do_input = st.slider('Dissolved Oxygen Setpoint (Do)', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
+    
+    # Ki Slider (New)
+    Ki_input = st.slider('Integral Gain (Ki)', min_value=80.0, max_value=140.0, value=110.0, step=15)
+    
+    # The Submit Button
+    submit_button = st.form_submit_button(label='Simulate')
 
-# Fixed parameter values
-mua = 0.1 #1/hr
-mum = 1.4 #1/hr
-C = 1 #change to fraction of possible dissolved oxygen 6 # mg/L
-Ks = 5/6 # change to fraction of C rather than a concentration 5 # mg/L
-Xm = 1 #5e9 # cells/mL
-b = 100 #1/hr
-Kp = 0.2
-Ki = 110 #1/hr
+# --- SIMULATION LOGIC ---
+# We only run this block if the user hits "Simulate"
+if submit_button:
+    # Fixed parameter values
+    mua = 0.1 #1/hr
+    mum = 1.4 #1/hr
+    C = 1 
+    Ks = 5/6 
+    Xm = 1 
+    b = 100 #1/hr
+    Kp = 0.2
+    
+    # Pack parameters with inputs from the form
+    p = [mua, mum, Ks, Xm, b, C, Kp, Ki_input, Do_input]
 
-# Pack parameters (Do comes from the slider now)
-p = [mua, mum, Ks, Xm, b, C, Kp, Ki, Do]
+    # Initial condition
+    X0 = 1e7/5e9 # cells/mL
+    S0 = 0.8 # mg/L
+    kla0 = 0.2 #1/hr
+    y0 = [X0, S0, kla0]
 
-# Initial condition
-X0 = 1e7/5e9 # cells/mL
-S0 = 0.8 # mg/L
-kla0 = 0.2 #1/hr
-y0 = [X0, S0, kla0]
+    # Solve ODEs
+    t = np.linspace(0, 10, 10000) # 10 hours
+    vals = np.zeros((len(t), 3))
+    vals[0, :] = y0
+    
+    for i in range(1, len(t)):
+        dXdt, dSdt, dkladt = derivatives(vals[i-1, :], t[i-1], p)
+        vals[i, 0] = vals[i-1, 0] + dXdt * (t[i] - t[i-1])
+        vals[i, 1] = vals[i-1, 1] + dSdt * (t[i] - t[i-1])
+        vals[i, 2] = vals[i-1, 2] + dkladt * (t[i] - t[i-1])
 
-
-# --- SIMULATION ---
-# Solve the coupled differential equations
-# set time span for the simulation
-t = np.linspace(0, 10, 50000) # 10 hours
-vals = np.zeros((len(t), 3))
-vals[0, :] = y0
-errInt = 0
-for i in range(1, len(t)):
-    # Compute the derivatives at the current time step
-    dXdt, dSdt, dkladt = derivatives(vals[i-1, :], t[i-1], p)
-    # Update the state vector using the Euler method
-    vals[i, 0] = vals[i-1, 0] + dXdt * (t[i] - t[i-1])
-    vals[i, 1] = vals[i-1, 1] + dSdt * (t[i] - t[i-1])
-    vals[i, 2] = vals[i-1, 2] + dkladt * (t[i] - t[i-1])
-
-
-df = pd.DataFrame({
-    'Time': t,
-    'S': vals[:, 1],     # Right Axis (Black, -.)
-    'kla': vals[:, 2],   # Left Axis (Blue)
-    'X/Xm': vals[:, 0]   # Right Axis (Green)
-})
-
-# Separate 1-row dataframe just for the threshold line
-# This prevents the "striping" issue by drawing the line exactly once
-df_threshold = pd.DataFrame({'val': [Do]})
+    # Save results to Session State so they persist if the app reruns elsewhere
+    st.session_state['data'] = pd.DataFrame({
+        'Time': t,
+        'S': vals[:, 1],     
+        'kla': vals[:, 2],   
+        'X/Xm': vals[:, 0]   
+    })
+    st.session_state['Do_val'] = Do_input
+    st.session_state['has_run'] = True
 
 
 # --- PLOTTING ---
