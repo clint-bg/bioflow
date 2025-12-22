@@ -102,73 +102,84 @@ if submit_button:
 
 
 # --- PLOTTING ---
-# Base chart for the main time-series data
-base = alt.Chart(df).encode(
-    x=alt.X('Time', title='Time (hours)')
-)
-
-# Left Axis: kla
-left_chart = base.mark_line(color='#1f77b4').encode(
-    y=alt.Y('kla', 
-            scale=alt.Scale(domain=[0, 20.5]), 
-            title='kla (1/hr)')
-)
-
-# Right Axis: S and X/Xm 
-right_lines = base.transform_fold(
-    ['S', 'X/Xm'],
-    as_=['Variable', 'Value']
-).mark_line().encode(
-    y=alt.Y('Value:Q', 
-            scale=alt.Scale(domain=[0, 1]), 
-            title='X/Xm (green) and S/C (black)'),
+# We check if 'has_run' is true. If not, we skip plotting to avoid the "df not defined" error.
+if 'has_run' in st.session_state and st.session_state['has_run']:
     
-    # Colors: S -> Black, X/Xm -> Green
-    color=alt.Color('Variable:N', 
-                    scale=alt.Scale(domain=['S', 'X/Xm'], 
-                                    range=['black', 'green']),
-                    legend=alt.Legend(title="Variables", orient='top-right')),
+    # Retrieve data from session state
+    df = st.session_state['data']
+    Do_val = st.session_state['Do_val']
     
-    # Dashes: S -> Dash-Dot, X/Xm -> Solid
-    strokeDash=alt.StrokeDash('Variable:N', 
-                              scale=alt.Scale(domain=['S', 'X/Xm'], 
-                                              range=[[5, 3, 1, 3], [0]]))
-)
+    # Recreate the threshold dataframe for the current Do value
+    df_threshold = pd.DataFrame({'val': [Do_val]})
 
-# Right Axis: Do (Threshold): We use df_threshold here instead of 'base'
-do_rule = alt.Chart(df_threshold).mark_rule(
-    strokeDash=[5, 5], 
-    color='black', 
-    opacity=0.5
-).encode(
-    # We must explicitly set the domain to match the right axis [0, 1]
-    y=alt.Y('val', scale=alt.Scale(domain=[0, 1]))
-)
 
-# Label for Do
-do_label = alt.Chart(df_threshold).mark_text(
-    align='left', baseline='bottom', dx=5, dy=-2
-).encode(
-    y=alt.Y('val', scale=alt.Scale(domain=[0, 1])),
-    x=alt.value(0), # Stick to the left side of the chart
-    text=alt.value('Do')
-)
-
-# Combine layers: Group the Right Axis components (lines + rule + label)
-right_layer = alt.layer(right_lines, do_rule, do_label)
-
-# Combine Left and Right, resolving the Y scale
-final_chart = alt.layer(
-    left_chart,
-    right_layer
-).resolve_scale(
-    y='independent'
-).properties(
-    title='Reaction Kinetics Results'
-)
-
-# Render Chart
-st.altair_chart(final_chart, use_container_width=True)
+    # Base chart for the main time-series data
+    base = alt.Chart(df).encode(
+        x=alt.X('Time', title='Time (hours)')
+    )
+    
+    # Left Axis: kla
+    left_chart = base.mark_line(color='#1f77b4').encode(
+        y=alt.Y('kla', 
+                scale=alt.Scale(domain=[0, 20.5]), 
+                title='kla (1/hr)')
+    )
+    
+    # Right Axis: S and X/Xm 
+    right_lines = base.transform_fold(
+        ['S', 'X/Xm'],
+        as_=['Variable', 'Value']
+    ).mark_line().encode(
+        y=alt.Y('Value:Q', 
+                scale=alt.Scale(domain=[0, 1]), 
+                title='X/Xm (green) and S/C (black)'),
+        
+        # Colors: S -> Black, X/Xm -> Green
+        color=alt.Color('Variable:N', 
+                        scale=alt.Scale(domain=['S', 'X/Xm'], 
+                                        range=['black', 'green']),
+                        legend=alt.Legend(title="Variables", orient='top-right')),
+        
+        # Dashes: S -> Dash-Dot, X/Xm -> Solid
+        strokeDash=alt.StrokeDash('Variable:N', 
+                                  scale=alt.Scale(domain=['S', 'X/Xm'], 
+                                                  range=[[5, 3, 1, 3], [0]]))
+    )
+    
+    # Right Axis: Do (Threshold): We use df_threshold here instead of 'base'
+    do_rule = alt.Chart(df_threshold).mark_rule(
+        strokeDash=[5, 5], 
+        color='black', 
+        opacity=0.5
+    ).encode(
+        # We must explicitly set the domain to match the right axis [0, 1]
+        y=alt.Y('val', scale=alt.Scale(domain=[0, 1]))
+    )
+    
+    # Label for Do
+    do_label = alt.Chart(df_threshold).mark_text(
+        align='left', baseline='bottom', dx=5, dy=-2
+    ).encode(
+        y=alt.Y('val', scale=alt.Scale(domain=[0, 1])),
+        x=alt.value(0), # Stick to the left side of the chart
+        text=alt.value('Do')
+    )
+    
+    # Combine layers: Group the Right Axis components (lines + rule + label)
+    right_layer = alt.layer(right_lines, do_rule, do_label)
+    
+    # Combine Left and Right, resolving the Y scale
+    final_chart = alt.layer(
+        left_chart,
+        right_layer
+    ).resolve_scale(
+        y='independent'
+    ).properties(
+        title='Reaction Kinetics Results'
+    )
+    
+    # Render Chart
+    st.altair_chart(final_chart, use_container_width=True)
 
 
 st.markdown('## Understand the Logistic-Monod Growth Model') 
