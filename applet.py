@@ -79,8 +79,6 @@ for i in range(1, len(t)):
     vals[i, 2] = vals[i-1, 2] + dkladt * (t[i] - t[i-1])
 
 
-
-# 1. PREPARE DATA
 df = pd.DataFrame({
     'Time': t,
     'S': vals[:, 1],     # Right Axis (Black, -.)
@@ -88,26 +86,25 @@ df = pd.DataFrame({
     'X/Xm': vals[:, 0]   # Right Axis (Green)
 })
 
+# Separate 1-row dataframe just for the threshold line
+# This prevents the "striping" issue by drawing the line exactly once
+df_threshold = pd.DataFrame({'val': [Do]})
+
 # 2. CREATE THE CHARTS
 
-# Base chart shared by all layers
+# Base chart for the main time-series data
 base = alt.Chart(df).encode(
     x=alt.X('Time', title='Time (hours)')
 )
 
 # --- LEFT AXIS: kla ---
-# We use a manual color mapping to ensure it appears in a legend if needed, 
-# or just hardcode it. Here we use the default blue to contrast with the black/green.
 left_chart = base.mark_line(color='#1f77b4').encode(
     y=alt.Y('kla', 
             scale=alt.Scale(domain=[0, 20.5]), 
-            title='kla (1/hr)'),
-    # Optional: To add 'kla' to a legend, we would need to map color to a datum
-    # color=alt.value('#1f77b4') 
+            title='kla (1/hr)')
 )
 
 # --- RIGHT AXIS: S and X/Xm ---
-# We transform_fold them to handle the specific styling (colors + dashes) in one legend
 right_lines = base.transform_fold(
     ['S', 'X/Xm'],
     as_=['Variable', 'Value']
@@ -116,52 +113,54 @@ right_lines = base.transform_fold(
             scale=alt.Scale(domain=[0, 1]), 
             title='X/Xm (green) and S/C (black)'),
     
-    # Manually map colors: S -> Black, X/Xm -> Green
+    # Colors: S -> Black, X/Xm -> Green
     color=alt.Color('Variable:N', 
                     scale=alt.Scale(domain=['S', 'X/Xm'], 
                                     range=['black', 'green']),
                     legend=alt.Legend(title="Variables", orient='top-right')),
     
-    # Manually map dash styles: S -> Dash-Dot, X/Xm -> Solid
-    # [5, 3, 1, 3] mimics matplotlib's '-.' (long, space, dot, space)
+    # Dashes: S -> Dash-Dot, X/Xm -> Solid
     strokeDash=alt.StrokeDash('Variable:N', 
                               scale=alt.Scale(domain=['S', 'X/Xm'], 
                                               range=[[5, 3, 1, 3], [0]]))
 )
 
 # --- RIGHT AXIS: Do (Threshold) ---
-# Dashed line for Do
-do_rule = base.mark_rule(
-    strokeDash=[5, 5],  # Standard dashed line
+# We use df_threshold here instead of 'base'
+do_rule = alt.Chart(df_threshold).mark_rule(
+    strokeDash=[5, 5], 
     color='black', 
     opacity=0.5
 ).encode(
-    y=alt.datum(Do)
+    # We must explicitly set the domain to match the right axis [0, 1]
+    y=alt.Y('val', scale=alt.Scale(domain=[0, 1]))
 )
 
-# Label for Do (Optional, but helps since Rules don't appear in legends easily)
-do_label = base.mark_text(
+# Label for Do
+do_label = alt.Chart(df_threshold).mark_text(
     align='left', baseline='bottom', dx=5, dy=-2
 ).encode(
-    x=alt.value(0),
-    y=alt.datum(Do),
+    y=alt.Y('val', scale=alt.Scale(domain=[0, 1])),
+    x=alt.value(0), # Stick to the left side of the chart
     text=alt.value('Do')
 )
 
 # 3. COMBINE LAYERS
-# We layer the Right components (lines + rule + text), then combine with Left
+# Group the Right Axis components (lines + rule + label)
+right_layer = alt.layer(right_lines, do_rule, do_label)
+
+# Combine Left and Right, resolving the Y scale
 final_chart = alt.layer(
     left_chart,
-    right_lines + do_rule + do_label
+    right_layer
 ).resolve_scale(
-    y='independent' # This creates the dual-axis effect
+    y='independent'
 ).properties(
     title='Reaction Kinetics Results'
 )
 
 # 4. RENDER
 st.altair_chart(final_chart, use_container_width=True)
-
 
 
 
