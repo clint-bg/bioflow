@@ -54,16 +54,16 @@ mum = 1.4 #1/hr
 C = 1 #change to fraction of possible dissolved oxygen 6 # mg/L
 Ks = 5/6 # change to fraction of C rather than a concentration 5 # mg/L
 Xm = 1 #5e9 # cells/mL
-b = 500 #1/hr
+b = 250 #1/hr
 Kp = 0.2
-Ki = 2 #1/hr
+Ki = 10 #1/hr
 
 # Pack parameters (Do comes from the slider now)
 p = [mua, mum, Ks, Xm, b, C, Kp, Ki, Do]
 
 # Initial condition
 X0 = 1e7/5e9 # cells/mL
-S0 = 0.3 # mg/L
+S0 = 0.8 # mg/L
 kla0 = 0.2 #1/hr
 y0 = [X0, S0, kla0]
 
@@ -102,11 +102,23 @@ base = alt.Chart(df).encode(
     x=alt.X('Time', title='Time (hours)')
 )
 
+# Define shared scales for consistency in the legend
+# 1. Domain: The names of the variables
+domain = ['S', 'X/Xm', 'kla']
+# 2. Color Range: Black, Green, Blue
+color_range = ['black', 'green', '#1f77b4']
+# 3. Dash Range: Dash-Dot, Solid, Solid
+# [5, 3, 1, 3] is dash-dot. [0] is solid.
+dash_range = [[5, 3, 1, 3], [0], [0]]
+
 # Left Axis: kla
-left_chart = base.mark_line(color='#1f77b4').encode(
+left_chart = base.mark_line().encode(
     y=alt.Y('kla', 
             scale=alt.Scale(domain=[0, 20.5]), 
-            title='kla (1/hr)')
+            title='kla (1/hr)'),
+    # map 'kla' to the shared scales so it appears in the legend
+    color=alt.Color(alt.datum('kla'), scale=alt.Scale(domain=domain, range=color_range), legend=None),
+    strokeDash=alt.StrokeDash(alt.datum('kla'), scale=alt.Scale(domain=domain, range=dash_range), legend=None)
 )
 
 # Right Axis: S and X/Xm 
@@ -118,25 +130,22 @@ right_lines = base.transform_fold(
             scale=alt.Scale(domain=[0, 1]), 
             title='X/Xm (green) and S/C (black)'),
     
-    # Colors: S -> Black, X/Xm -> Green
+    # Use the same scales, but enable the legend here
     color=alt.Color('Variable:N', 
-                    scale=alt.Scale(domain=['S', 'X/Xm'], 
-                                    range=['black', 'green']),
+                    scale=alt.Scale(domain=domain, range=color_range),
                     legend=alt.Legend(title="Variables", orient='top-right')),
     
-    # Dashes: S -> Dash-Dot, X/Xm -> Solid
     strokeDash=alt.StrokeDash('Variable:N', 
-                              scale=alt.Scale(domain=['S', 'X/Xm'], 
-                                              range=[[5, 3, 1, 3], [0]]))
+                              scale=alt.Scale(domain=domain, range=dash_range),
+                              legend=alt.Legend(title="Variables", orient='top-right'))
 )
 
-# Right Axis: Do (Threshold): We use df_threshold here instead of 'base'
+# Right Axis: Do (Threshold)
 do_rule = alt.Chart(df_threshold).mark_rule(
     strokeDash=[5, 5], 
     color='black', 
     opacity=0.5
 ).encode(
-    # We must explicitly set the domain to match the right axis [0, 1]
     y=alt.Y('val', scale=alt.Scale(domain=[0, 1]))
 )
 
@@ -145,17 +154,16 @@ do_label = alt.Chart(df_threshold).mark_text(
     align='left', baseline='bottom', dx=5, dy=-2
 ).encode(
     y=alt.Y('val', scale=alt.Scale(domain=[0, 1])),
-    x=alt.value(0), # Stick to the left side of the chart
+    x=alt.value(0), 
     text=alt.value('Do')
 )
 
-# Combine layers: Group the Right Axis components (lines + rule + label)
-right_layer = alt.layer(right_lines, do_rule, do_label)
-
-# Combine Left and Right, resolving the Y scale
+# Combine layers
 final_chart = alt.layer(
     left_chart,
-    right_layer
+    right_lines,
+    do_rule, 
+    do_label
 ).resolve_scale(
     y='independent'
 ).properties(
@@ -164,7 +172,6 @@ final_chart = alt.layer(
 
 # Render Chart
 st.altair_chart(final_chart, use_container_width=True)
-
 
 st.markdown('## Understand the Logistic-Monod Growth Model') 
 
