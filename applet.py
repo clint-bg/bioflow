@@ -50,7 +50,7 @@ st.sidebar.markdown('Adjustable parameters.')
 with st.sidebar.form(key='simulation_form'):
     # Sliders
     Do_input = st.slider('Dissolved Oxygen Setpoint (Do)', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
-    Ki_input = st.slider('Integral Gain (Ki, 1/hr)', min_value=80.0, max_value=140.0, value=110.0, step=15.0)
+    Ki_input = st.slider('Integral Gain (Ki, 1/hr)', min_value=80.0, max_value=140.0, value=110.0, step=15.0, help='Integral control parameter for disolved oxygen (S)')
     mua_input = st.slider('Anaerobic Rate ($\mu_a$, 1/hr)', min_value=0.0, max_value=1.0, value=0.1, step=0.05)
     mum_input = st.slider('Growth Rate ($\mu_m$, 1/hr)', min_value=0.0, max_value=10.0, value=1.4, step=0.1)
     Ks_input = st.slider('Half Saturation Constant (Ks)', min_value=0.1, max_value=10.0, value = 0.8, step=0.1, help='Substrate concentration when the growth rate is half the maximum')
@@ -65,7 +65,9 @@ with st.sidebar.form(key='simulation_form'):
 #Reset button used to reset parameter values to defualts
 if defaults_button:
     st.session_state.Do_input = 0.8
+    Do_input = 0.8
     st.session_state.Ki_input = 110.0
+    Ki_input = 110.0
 
 
 # --- SIMULATION LOGIC ---
