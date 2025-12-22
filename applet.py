@@ -58,6 +58,15 @@ with st.sidebar.form(key='simulation_form'):
     # The Submit Button
     submit_button = st.form_submit_button(label='Simulate')
 
+    #The Default Button
+    defaults_button = st.form_submit_button(label='Reset')
+
+#Reset button used to reset parameter values to defualts
+if defaults_button:
+    Do_input = 0.8
+    Ki_input = 1110.0
+
+
 # --- SIMULATION LOGIC ---
 # We only run this block if the user hits "Simulate"
 if submit_button:
