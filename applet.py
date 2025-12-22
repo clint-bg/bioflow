@@ -45,31 +45,19 @@ def derivatives(y, t, p):
 st.sidebar.title('Parameters')
 st.sidebar.markdown('Adjustable parameters.')
 
-def reset_values():
-    st.session_state.Do_input = 0.8
-    st.session_state.Ki_input = 110.0
-    st.session_state.mua_input = 0.1
-    st.session_state.mum_input = 1.4
-    st.session_state.Ks_input = 0.8
-    st.session_state.b_input = 100.0
-
 # 1. WRAP INPUTS IN A FORM
 # This prevents the app from rerunning instantly when you move a slider.
 with st.sidebar.form(key='simulation_form'):
     # Sliders
     Do_input = st.slider('Dissolved Oxygen Setpoint (Do)', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
-    Ki_input = st.slider('Integral Gain (Ki, 1/hr)', min_value=80.0, max_value=140.0, value=110.0, step=15.0, help='Integral control parameter for disolved oxygen (S)')
-    mua_input = st.slider('Anaerobic Rate ($\mu_a$, 1/hr)', min_value=0.0, max_value=1.0, value=0.1, step=0.05)
-    mum_input = st.slider('Growth Rate ($\mu_m$, 1/hr)', min_value=0.0, max_value=10.0, value=1.4, step=0.1)
-    Ks_input = st.slider('Half Saturation Constant (Ks)', min_value=0.1, max_value=10.0, value = 0.8, step=0.1, help='Substrate concentration when the growth rate is half the maximum')
-    b_input = st.slider('Oxygen consumption rate (b, 1/hr)', min_value=0.0, max_value=1000.0, value=100.0, step=5.0)
+    Ki_input = st.slider('Integral Gain (Ki, 1/hr)', min_value=80.0, max_value=140.0, value=110.0, step=2.5, help='Integral control parameter for disolved oxygen (S) with default value of 110')
+    mua_input = st.slider('Anaerobic Rate ($\mu_a$, 1/hr)', min_value=0.0, max_value=1.0, value=0.1, step=0.05, help='Default value of 0.1')
+    mum_input = st.slider('Growth Rate ($\mu_m$, 1/hr)', min_value=0.0, max_value=10.0, value=1.4, step=0.1, help='Default value of 1.4')
+    Ks_input = st.slider('Half Saturation Constant (Ks)', min_value=0.1, max_value=10.0, value = 0.8, step=0.1, help='Substrate concentration when the growth rate is half the maximum with default value of 0.8')
+    b_input = st.slider('Oxygen consumption rate (b, 1/hr)', min_value=0.0, max_value=1000.0, value=100.0, step=5.0, help='Default value of 100')
     
     # The Submit Button
     submit_button = st.form_submit_button(label='Simulate')
-
-    #The Default Button
-    defaults_button = st.form_submit_button(label='Reset', help='Click to reset parameters to defaults',on_click=reset_values)
-
 
 # --- SIMULATION LOGIC ---
 # We only run this block if the user hits "Simulate"
