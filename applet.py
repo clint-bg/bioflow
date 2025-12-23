@@ -190,6 +190,13 @@ st.markdown('$\\frac{1}{X}\\frac{dX}{dt} = \\left[ \\mu_a + \\frac{\\mu_{m}S}{K_
 
 st.markdown('where $\mu_a$ is the NPEC growth rate without substrate (oxygen), $\mu_m$ is the maximum specific growth rate of NPEC with substrate (oxygen), $K_s$ is the Monod constant for substrate (oxygen), $S$ is the substrate (oxygen) concentration, $X$ is the NPEC concentration, and $X_m$ is the carrying capacity of the bioreactor. Other Monod like factors can be added to simulate other required substrates like glucose.')
 
+st.markdown('## Understand transfer and consumption of the substrate (oxygen)')
+st.markdown('The substrate (oxygen) concentration changes as a function of time based on the number of NPEC cells and the mass transfer rate. The mass transfer rate is a simplification of what really happens as the rate increases with agitation and flow rate of air into the bioreactor. The change in substrate (oxygen) concentration can be expressed as:')
+
+st.markdown('$\\frac{dS}{dt} = -X\cdot b + k_{La}(C - S)$')
+
+st.markdown('where $X$ is the NPEC concentration, $b$ is the consumption rate of substrate by the NPEC, $C$ is the max oxygen concentration possible, and $k_{La}$ is the mass transfer coefficient.')
+
 st.markdown('## Understand the $k_{La}$ parameter')
 st.markdown('The $k_{La}$ is the mass transfer coefficient that increases with agitation and flow rate of air into the bioreactor. However, instead of modeling agitation and flow rate directly, we will just use a proportional and integral (PI) controller to model the changing $k_{La}$. An increasing $k_{La}$ means that more oxygen can be transferred (dissolved) into the fluid. That PI control is:')
 
@@ -208,4 +215,6 @@ st.markdown('And assuming that the controller does its job then S can be replace
 st.markdown('$k_{La} = \\frac{bX}{(C-D_o)}$')
 st.markdown('and the derivative of this equation is:')
 st.markdown('$\\frac{dk_{La}}{dt} = \\frac{b}{C-D_o}$')
+
+
 
