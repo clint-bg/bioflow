@@ -217,7 +217,7 @@ st.markdown('and the derivative of this equation is:')
 st.markdown('$\\frac{dk_{La}}{dt} = \\frac{b}{C-D_o}$')
 
 st.markdown('## Solve the Coupled Differential Equations')
-st.markdown('Those 3 coupled differential equations are solved simultaneously with a numerical algorithm (in this case using Euler's method). The three coupled equations are:')
+st.markdown('Those 3 coupled differential equations are solved simultaneously with a numerical algorithm (in this case using Eulers method). The three coupled equations are:')
 st.markdown('$\\frac{1}{X}\\frac{dX}{dt} = \\left[ \\mu_a + \\frac{\\mu_{m}S}{K_s + S} \\right] \\left[ 1-\\frac{X}{X_m} \\right]$')
 st.markdown('$\\frac{dS}{dt} = -X\cdot b + k_{La}(C - S)$')
 st.markdown('$\\frac{dk_{La}}{dt} = \\frac{b}{C-D_o} + K_i(D_o - S)$')
