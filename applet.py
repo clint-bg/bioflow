@@ -4,7 +4,9 @@ import numpy as np
 import altair as alt
 
 st.title('Bioflow Model')
-st.markdown('Bioreactor code that models the concentration of NPEC (non-pathogenic E. coli) that produces GFP (green fluorescent protein) in a bioreactor. It also models the concentration of oxygen and the mass transfer rate. The mass transfer rate increases with agitation and flow rate of air into the bioreactor.')
+st.markdown('Bioreactor code that models the concentration of NPEC (non-pathogenic E. coli) that produces GFP (green fluorescent protein) in a bioreactor. It also models the concentration of oxygen and the mass transfer rate. The mass transfer rate increases with agitation and flow rate of air into the bioreactor. Click the simulate button in the left sidebar.')
+
+st.info('Use this simple simulation to better understand how parameters like (1) the limitations of the mass transfer of oxygen (kla value), (3) the starting concentration of bacteria (X/Xm), (3) half saturation constant, (4) and other parameters impact the growth OF NPEC.')
 
 def derivatives(y, t, p):
     # Unpack the state vector and parameters
@@ -181,9 +183,29 @@ if 'has_run' in st.session_state and st.session_state['has_run']:
 
 st.markdown('## Understand the Logistic-Monod Growth Model') 
 
-st.markdown('The logistic portion of the growth model models the limits of growth due to the carrying capacity of the bioreactor. The Monod portion models the growth rate as a function of the substrate concentration. The logistic-Monod growth model can be expressed as (Monod portion first and the logistic portion second):')
+st.markdown('The Logistic-Monod model is commonly used to describe microbial growth. It is a hybrid model with the Monod portion describing the growth rate as a function of the substrate concentration. The logistic portion limits the growth due to the carrying capacity of the bioreactor. The logistic-Monod growth model can be expressed as (Monod portion in the first set of brackets and the logistic portion second):')
 
 st.markdown('$\\frac{1}{X}\\frac{dX}{dt} = \\left[ \\mu_a + \\frac{\\mu_{m}S}{K_s + S} \\right] \\left[ 1-\\frac{X}{X_m} \\right]$')
 
 
-st.markdown('where $\mu_a$ is the NPEC growth rate without substrate (oxygen), $\mu_m$ is the maximum specific growth rate of NPEC with substrate (oxygen), $K_s$ is the Monod constant for substrate (oxygen), $S$ is the substrate (oxygen) concentration, $X$ is the NPEC concentration, and $X_m$ is the carrying capacity of the bioreactor.')
+st.markdown('where $\mu_a$ is the NPEC growth rate without substrate (oxygen), $\mu_m$ is the maximum specific growth rate of NPEC with substrate (oxygen), $K_s$ is the Monod constant for substrate (oxygen), $S$ is the substrate (oxygen) concentration, $X$ is the NPEC concentration, and $X_m$ is the carrying capacity of the bioreactor. Other Monod like factors can be added to simulate other required substrates like glucose.')
+
+st.markdown('## Understand the $k_{La}$ parameter')
+st.markdown('The $k_{La}$ is the mass transfer coefficient that increases with agitation and flow rate of air into the bioreactor. However, instead of modeling agitation and flow rate directly, we'll just use a proportional and integral (PI) controller to model the changing $k_{La}$. An increasing $k_{La}$ means that more oxygen can be transferred (dissolved) into the fluid. That PI control is:')
+
+st.markdown('$\\frac{dk_{La}}{dt} = -K_p \\frac{dS}{dt} + K_i(D_o - S)$')
+st.markdown('where $K_p$ is the proportional gain and $K_i$ is the integral gain. The $D_o$ is the desired oxygen concentration (set point). This equation is just the derivative of the PI control equation.')
+
+st.markdown('With proportional control and the value of S above the setpoint, the controller sees the rate of oxygen drop and tries to anticipate the loss by increasing $k_{La}$ immediately, even though you are currently above the setpoint. This results in a positive change in $k_{La}$ which is unexpected. For bioreactors with noisy consumption rates or when you want the controller to respond strictly to the level of oxygen (not the rate of change), an Integral-only controller (or a very heavily detuned PI) is often preferred.')
+
+st.markdown('Without feed forward control with purely integral control, it can take a while for the integral term to "wind up". Feed forward helps with that to calculate how much the oxygen will be needed and adjust kla immediately.')
+
+st.markdown('### Feed forward control')
+st.markdown('Rate of consumption by the cells equaling the rate of transfer is:')
+st.markdown('$k_{La} = \\frac{bX}{(C-S)}$')
+
+st.markdown('And assuming that the controller does its job then S can be replaced with $D_o$ to get:')
+st.markdown('$k_{La} = \\frac{bX}{(C-D_o)}$')
+st.markdown('and the derivative of this equation is:')
+st.markdown('$\\frac{dk_{La}}{dt} = \\frac{b}{C-D_o}$')
+
