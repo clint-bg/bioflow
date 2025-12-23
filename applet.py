@@ -54,7 +54,9 @@ with st.sidebar.form(key='simulation_form'):
     mua_input = st.slider('Anaerobic Rate ($\mu_a$, 1/hr)', min_value=0.0, max_value=1.0, value=0.1, step=0.05, help='Default value of 0.1')
     mum_input = st.slider('Growth Rate ($\mu_m$, 1/hr)', min_value=0.0, max_value=10.0, value=1.4, step=0.1, help='Default value of 1.4')
     Ks_input = st.slider('Half Saturation Constant (Ks)', min_value=0.1, max_value=10.0, value = 0.8, step=0.1, help='Substrate concentration when the growth rate is half the maximum with default value of 0.8')
-    b_input = st.slider('Oxygen consumption rate (b, 1/hr)', min_value=0.0, max_value=1000.0, value=100.0, step=5.0, help='Default value of 100')
+    b_input = st.slider('Oxygen Consumption Rate (b, 1/hr)', min_value=0.0, max_value=1000.0, value=100.0, step=5.0, help='Default value of 100')
+    S0_input = st.slider('Initial Oxygen Fraction', min_value=0.0, max_value=1.0, value=0.8, steps=0.1)
+    X0_input = st.number_input('Initial X/Xm', min_value=1e-5, max_value=1e-1, value=2e-3,help='Defalut value of 2e-3') 
     
     # The Submit Button
     submit_button = st.form_submit_button(label='Simulate')
@@ -71,10 +73,8 @@ if submit_button:
     p = [mua_input, mum_input, Ks_input, Xm, b_input, C, Kp, Ki_input, Do_input]
 
     # Initial condition
-    X0 = 1e7/5e9 # cells/mL
-    S0 = 0.8 # mg/L
     kla0 = 0.2 #1/hr
-    y0 = [X0, S0, kla0]
+    y0 = [X0_input, S0_input, kla0]
 
     # Solve ODEs
     t = np.linspace(0, 10, 10000) # 10 hours
