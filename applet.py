@@ -191,14 +191,14 @@ st.markdown('$\\frac{1}{X}\\frac{dX}{dt} = \\left[ \\mu_a + \\frac{\\mu_{m}S}{K_
 st.markdown('where $\mu_a$ is the NPEC growth rate without substrate (oxygen), $\mu_m$ is the maximum specific growth rate of NPEC with substrate (oxygen), $K_s$ is the Monod constant for substrate (oxygen), $S$ is the substrate (oxygen) concentration, $X$ is the NPEC concentration, and $X_m$ is the carrying capacity of the bioreactor. Other Monod like factors can be added to simulate other required substrates like glucose.')
 
 st.markdown('## Understand the $k_{La}$ parameter')
-st.markdown('The $k_{La}$ is the mass transfer coefficient that increases with agitation and flow rate of air into the bioreactor. However, instead of modeling agitation and flow rate directly, we'll just use a proportional and integral (PI) controller to model the changing $k_{La}$. An increasing $k_{La}$ means that more oxygen can be transferred (dissolved) into the fluid. That PI control is:')
+st.markdown('The $k_{La}$ is the mass transfer coefficient that increases with agitation and flow rate of air into the bioreactor. However, instead of modeling agitation and flow rate directly, we will just use a proportional and integral (PI) controller to model the changing $k_{La}$. An increasing $k_{La}$ means that more oxygen can be transferred (dissolved) into the fluid. That PI control is:')
 
 st.markdown('$\\frac{dk_{La}}{dt} = -K_p \\frac{dS}{dt} + K_i(D_o - S)$')
 st.markdown('where $K_p$ is the proportional gain and $K_i$ is the integral gain. The $D_o$ is the desired oxygen concentration (set point). This equation is just the derivative of the PI control equation.')
 
 st.markdown('With proportional control and the value of S above the setpoint, the controller sees the rate of oxygen drop and tries to anticipate the loss by increasing $k_{La}$ immediately, even though you are currently above the setpoint. This results in a positive change in $k_{La}$ which is unexpected. For bioreactors with noisy consumption rates or when you want the controller to respond strictly to the level of oxygen (not the rate of change), an Integral-only controller (or a very heavily detuned PI) is often preferred.')
 
-st.markdown('Without feed forward control with purely integral control, it can take a while for the integral term to "wind up". Feed forward helps with that to calculate how much the oxygen will be needed and adjust kla immediately.')
+st.markdown('Without feed forward control with purely integral control, it can take a while for the integral term to wind up. Feed forward helps with that to calculate how much the oxygen will be needed and adjust kla immediately.')
 
 st.markdown('### Feed forward control')
 st.markdown('Rate of consumption by the cells equaling the rate of transfer is:')
