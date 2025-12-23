@@ -55,7 +55,7 @@ with st.sidebar.form(key='simulation_form'):
     mum_input = st.slider('Growth Rate ($\mu_m$, 1/hr)', min_value=0.0, max_value=10.0, value=1.4, step=0.1, help='Default value of 1.4')
     Ks_input = st.slider('Half Saturation Constant (Ks)', min_value=0.1, max_value=10.0, value = 0.8, step=0.1, help='Substrate concentration when the growth rate is half the maximum with default value of 0.8')
     b_input = st.slider('Oxygen Consumption Rate (b, 1/hr)', min_value=0.0, max_value=1000.0, value=100.0, step=5.0, help='Default value of 100')
-    S0_input = st.slider('Initial Oxygen Fraction', min_value=0.0, max_value=1.0, value=0.8, step=0.1)
+    S0_input = st.slider('Initial Oxygen Fraction (S0)', min_value=0.0, max_value=1.0, value=0.8, step=0.1)
     X0_input = st.number_input('Initial X/Xm', min_value=1e-6, max_value=5e-2, value=2e-3,help='Defalut value of 2e-3',format="%.3e") 
     
     # The Submit Button
