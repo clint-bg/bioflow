@@ -4,7 +4,7 @@ import numpy as np
 import altair as alt
 
 st.title('Bioflow Model')
-st.markdown('Bioreactor code that models the concentration of NPEC (non-pathogenic E. coli) that produces GFP (green fluorescent protein) in a bioreactor. It also models the concentration of oxygen and the mass transfer rate. The mass transfer rate increases with agitation and flow rate of air into the bioreactor. Click the simulate button in the left sidebar.')
+st.markdown('Bioreactor code that models the concentration of NPEC (non-pathogenic E. coli) that produces GFP (green fluorescent protein) in a bioreactor. It also models the concentration of oxygen and the mass transfer rate. The mass transfer rate increases with agitation and flow rate of air into the bioreactor. :blue-background[Click the simulate button in the left sidebar].')
 
 st.info('Use this simple simulation to better understand how parameters like (1) the limitations of the mass transfer of oxygen (kla value), (3) the starting concentration of bacteria (X/Xm), (3) half saturation constant, (4) and other parameters impact the growth OF NPEC.')
 
